@@ -1,0 +1,28 @@
+# Dependencies and build artifacts
+node_modules/
+*.tsbuildinfo
+
+# Local secrets and environment
+.env
+.env.local
+.env.*.local
+
+# Clone cache and generated audit output
+.cache/
+generated reports/
+distribution/
+
+# Test and fixture artifacts
+tests/.npx.log
+tests/.claude-args.log
+tests/.cli-report.md
+reports/fixture-comparison.stub.md
+
+# Local agent / IDE / OS noise (not required to run Mirror AI)
+.DS_Store
+.claude-flow/
+.swarm/
+.probe/
+agentdb.rvf
+agentdb.rvf.lock
+ruvector.db

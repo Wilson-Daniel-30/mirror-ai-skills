@@ -1,89 +1,93 @@
 ---
 name: mirror-ai
 description: >-
-  Runs Mirror AI — the local Android vs iOS comparison UI (module enum or
-  whole-repo audits, business logic, UI, and API contract drift from code).
-  Use for /mirror-ai, starting Mirror AI, opening the comparison UI, running
-  audits, packaging the portable zip, or troubleshooting setup.
+  Installs and runs Mirror AI from the skills marketplace — local Android vs iOS
+  comparison UI with module or whole-repo audits. Use when the user invokes
+  /mirror-ai, asks to install Mirror AI, start the comparison app, or open
+  Mirror UI. Bootstraps Node deps on first run.
 disable-model-invocation: true
 ---
 
-# Mirror AI
+# Mirror AI (marketplace skill)
 
-Mirror AI is a **local Node app** that clones two git repos, compares Android
-and iOS, and runs Claude audits. It is **not** installed via npm globally — the
-user works from a project folder (or the portable zip).
+This skill **ships the full Mirror AI app**. Other developers install it once;
+**`/mirror-ai`** runs setup (if needed) and opens the UI.
+
+**Install (once per machine):**
+
+```bash
+npx skills add Wilson-Daniel-30/mirror-ai-skills@mirror-ai -g -y
+```
+
+https://github.com/Wilson-Daniel-30/mirror-ai-skills · https://skills.sh/
 
 ## When to use
 
-- User says **/mirror-ai**, **start Mirror AI**, **open Mirror UI**, or **run comparison**
-- User wants **module-by-enum** audits or **whole codebase** mode (toggle off “Scope by module enum”)
-- User needs **setup help**, **package for sharing**, or **PDF export** from the report
+User says **/mirror-ai**, **install Mirror AI**, **start Mirror AI**, **open Mirror UI**, or **run Android iOS comparison**.
 
-## Locate the project
+## What you MUST do (every /mirror-ai)
 
-Find the folder whose `package.json` has `"name": "mirror-ai"`. Common paths:
+Do **not** ask the user to clone or unzip anything. Run the skill’s start script.
 
-- Unzipped `distribution/Mirror-AI`
-- `Cursor Tools/Mirror AI` on the user’s machine
+1. **Resolve the skill directory** (try in order until `scripts/start.sh` exists):
 
-If the workspace is not that folder, `cd` there before any command below.
+   ```bash
+   for d in \
+     "$HOME/.agents/skills/mirror-ai" \
+     "$HOME/.cursor/skills/mirror-ai" \
+     "${CURSOR_SKILL_DIR:-}"; do
+     [ -n "$d" ] && [ -x "$d/scripts/start.sh" ] && echo "$d" && break
+   done
+   ```
 
-## Start the UI
+   If nothing is found, tell the user to install:
 
-```bash
-chmod +x scripts/start-ui.sh
-./scripts/start-ui.sh
-```
+   `npx skills add Wilson-Daniel-30/mirror-ai-skills@mirror-ai -g -y`
 
-Tell the user:
+   then run step 2 again.
 
-- URL: **http://127.0.0.1:4173/** (or `PORT` from `.env`)
-- Logs: `.cache/mirror-ai-serve.log`
-- Stop: `kill $(cat .cache/mirror-ai-serve.pid)`
+2. **Bootstrap + start** (installs app to `~/.mirror-ai` on first run, then serves UI):
 
-Do **not** start a second server if the script says it is already running.
+   ```bash
+   chmod +x "<SKILL_DIR>/scripts/"*.sh
+   "<SKILL_DIR>/scripts/start.sh"
+   ```
 
-## Using the UI (brief)
+   Replace `<SKILL_DIR>` with the path from step 1.
 
-| Mode | User action |
-|------|-------------|
-| **By module** | Leave “Scope by module enum” **on** → List modules → tick modules → Find differences |
-| **Whole app** | Turn scope **off** → Compare entire codebase (audit starts after repos connect) |
-| **PDF** | When the report is visible, **Download PDF** (top right of Differences) |
+3. **Tell the user:**
 
-Audits need **Claude Code CLI** (`claude login`) or **`ANTHROPIC_API_KEY`** + `MIRROR_AI_RUNNER=api` in `.env`.
+   - Open **http://127.0.0.1:4173/** (or `PORT` from `~/.mirror-ai/.env` if present)
+   - App files live in **`~/.mirror-ai`** (`MIRROR_AI_HOME` overrides this)
+   - Logs: `~/.mirror-ai/.cache/mirror-ai-serve.log`
+   - Stop server: `kill $(cat ~/.mirror-ai/.cache/mirror-ai-serve.pid)`
 
-## Package portable zip (share with teammates)
+4. If the script reports the server is **already running**, only share the URL — do not start a second copy.
 
-From project root:
+## Prerequisites (only mention if bootstrap fails)
 
-```bash
-chmod +x scripts/package-for-sharing.sh
-./scripts/package-for-sharing.sh
-```
+- **Node.js 22+** — https://nodejs.org/
+- **Audits** (not required to open UI): `claude login` or `ANTHROPIC_API_KEY` in `~/.mirror-ai/.env` with `MIRROR_AI_RUNNER=api`
 
-Output: `distribution/Mirror-AI/` and `distribution/Mirror-AI.zip`.
+## UI quick reference
 
-## Setup on a new machine
-
-```bash
-chmod +x setup.sh && ./setup.sh
-```
-
-Node **22+** required. If start fails, run `./scripts/diagnose-setup.sh` or use the project skill **find-setup-issue**.
+| Goal | Action |
+|------|--------|
+| Per-module | Scope by module enum **on** → list modules → select → Find differences |
+| Whole app | Scope **off** → Compare entire codebase |
+| PDF | Download PDF when the report is visible |
 
 ## Do not
 
-- Log or commit `.env`, tokens, or API keys
-- Paste full audit reports containing secrets into chat
-- Modify app source unless fixing a clear startup/environment issue the user asked for
+- Start a second server if one is already running
+- Log or paste `.env` secrets
+- Modify `~/.mirror-ai` source unless fixing a startup failure the user asked about
 
-## Manual server
+## Maintainer: refresh bundled app
+
+From the Mirror AI source repo:
 
 ```bash
-npm install
-npm run serve
+./scripts/package-for-skill.sh
+cd skills && git add -A && git commit -m "chore: refresh bundled app" && git push
 ```
-
-Open http://127.0.0.1:4173/ (or configured `PORT`).

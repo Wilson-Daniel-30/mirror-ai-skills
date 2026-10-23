@@ -1,24 +1,48 @@
-# Mirror AI — agent skills (marketplace)
+# mirror-ai-skills — marketplace package
 
-Install for Cursor (or other agents supported by the Skills CLI):
+**Mirror AI** bundled as an [Agent Skill](https://skills.sh/). Developers install once; **`/mirror-ai`** runs setup and opens the comparison UI.
+
+## Install (other developers)
 
 ```bash
-npx skills add <your-github-user>/mirror-ai-skills@mirror-ai -g -y
+npx skills add Wilson-Daniel-30/mirror-ai-skills@mirror-ai -g -y
 ```
 
-After you publish this folder to GitHub, replace `<your-github-user>/mirror-ai-skills` with your repo.
+Then in Cursor (or any supported agent): type **`/mirror-ai`**. The agent runs `scripts/start.sh`, which:
 
-## Publish to [skills.sh](https://skills.sh/)
+1. Copies the bundled app into **`~/.mirror-ai`** (first time)
+2. Runs **`setup.sh`** (`npm install`) if needed
+3. Starts **`scripts/start-ui.sh`** and opens http://127.0.0.1:4173/
 
-1. Create a **public** GitHub repository (e.g. `mirror-ai-skills`).
-2. Copy or symlink the `mirror-ai/` folder into that repo (this directory layout is what `npx skills add` expects).
-3. Push to `main`.
-4. Install locally to verify:
+## Repo layout
 
-   ```bash
-   npx skills add YOUR_USER/mirror-ai-skills@mirror-ai -g -y
-   ```
+```
+mirror-ai/
+  SKILL.md          # Agent instructions
+  scripts/
+    start.sh        # Entry point for /mirror-ai
+    bootstrap.sh    # Install to ~/.mirror-ai
+  app/              # Full Mirror AI source (no node_modules)
+```
 
-5. Skills on **skills.sh** are indexed from public GitHub repos when users install them; there is no separate “submit” button — discovery grows as people install and search.
+## Publish updates
 
-Optional: add a repo README with one-line description and link to the Mirror AI zip or main app repo.
+From the main **Mirror AI** project (not this folder only):
+
+```bash
+./scripts/package-for-skill.sh
+cd skills
+git add -A
+git commit -m "chore: refresh bundled Mirror AI app"
+git push
+```
+
+Users update with:
+
+```bash
+npx skills update mirror-ai -g -y
+```
+
+## skills.sh
+
+Public GitHub repos are installable via `npx skills add`. Listing on [skills.sh](https://skills.sh/) grows with installs and search — there is no separate upload form.

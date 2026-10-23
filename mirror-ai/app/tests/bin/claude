@@ -1,0 +1,11 @@
+#!/bin/bash
+# Stands in for the Claude Code CLI: records its arguments as a JSON array
+# (arguments contain newlines, so one-per-line would not survive), then prints
+# the JSON shape `claude -p --output-format json` produces.
+if [[ "$1" == "--version" ]]; then
+  echo "0.0.0-stub (Claude Code)"
+  exit 0
+fi
+export MIRROR_AI_CLI_LOG="${MIRROR_AI_CLI_LOG:-/tmp/mirror-ai-claude.log}"
+node -e 'require("fs").writeFileSync(process.env.MIRROR_AI_CLI_LOG, JSON.stringify(process.argv.slice(1)))' -- "$@"
+printf '%s' '{"is_error":false,"num_turns":12,"result":"### 1. Executive Summary\n\nStub audit of the Catalog module."}'

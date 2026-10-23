@@ -1,0 +1,22 @@
+#!/bin/bash
+log="${MIRROR_AI_NPX_LOG:-/tmp/mirror-ai-npx.log}"
+printf '%s\n' "$*" >> "$log"
+joined="$*"
+if [[ "$joined" == *"skills find"* ]]; then
+  echo 'No skills found for "query"'
+  exit 0
+fi
+if [[ "$joined" == *"ruflo route"* ]]; then
+  printf '%s\n' "Routed to Tester"
+  exit 0
+fi
+if [[ "$joined" == *"memory search"* ]]; then
+  echo "No matching memories"
+  exit 0
+fi
+if [[ "$joined" == *"memory store"* ]]; then
+  echo "stored"
+  exit 0
+fi
+echo "unexpected npx args: $*" >&2
+exit 1

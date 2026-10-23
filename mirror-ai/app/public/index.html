@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mirror AI</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Mirror AI</p>
+        <h1>Compare Android and iOS</h1>
+        <p class="lede">Paste both repository links. Mirror AI reads each repo, finds its module enum, and lists every module — shared ones first, then the ones only one platform has. Private Bitbucket repos use this Mac’s git login.</p>
+      </header>
+
+      <form id="repo-form">
+        <div class="repo">
+          <div class="field">
+            <label for="android-url">Android repository</label>
+            <input id="android-url" name="androidUrl" type="url" placeholder="https://bitbucket.org/org/android-app" value="https://bitbucket.org/paytmteam/lla-superapp-android/" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="android-branch">Android branch</label>
+            <input id="android-branch" name="androidBranch" type="text" placeholder="main" value="Jamaica/release/sprint-17" autocomplete="off" spellcheck="false" />
+          </div>
+        </div>
+        <div class="repo">
+          <div class="field">
+            <label for="ios-url">iOS repository</label>
+            <input id="ios-url" name="iosUrl" type="url" placeholder="https://bitbucket.org/org/ios-app" value="https://bitbucket.org/paytmteam/lla-superapp-ios/" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="ios-branch">iOS branch</label>
+            <input id="ios-branch" name="iosBranch" type="text" placeholder="main" value="Jamaica/release/sprint-17" autocomplete="off" spellcheck="false" />
+          </div>
+        </div>
+        <label class="checkbox scope-toggle">
+          <input id="by-module-enum" type="checkbox" checked />
+          Scope by module enum
+        </label>
+        <p id="scope-hint" class="hint">When off, Mirror AI compares the whole codebase in one report and starts the audit as soon as both repositories are connected.</p>
+        <label id="refresh-field" class="checkbox" hidden>
+          <input id="refresh" type="checkbox" />
+          Audit again, ignoring saved reports
+        </label>
+        <div class="actions">
+          <button id="list-modules" type="submit">List modules</button>
+        </div>
+      </form>
+
+      <p id="status" role="status"></p>
+      <p id="error" role="alert" hidden></p>
+
+      <section id="modules-step" hidden>
+        <h2 id="modules-step-title">Modules</h2>
+        <p id="modules-source" class="hint"></p>
+        <div id="module-groups">
+        <div class="group">
+          <h3>Common modules <span id="common-count" class="count"></span></h3>
+          <p class="hint">Declared in both the Android and the iOS module enum.</p>
+          <div id="common-list" class="module-grid"></div>
+        </div>
+
+        <div class="group">
+          <h3>Android only <span id="android-count" class="count"></span></h3>
+          <div id="android-list" class="module-grid"></div>
+        </div>
+
+        <div class="group">
+          <h3>iOS only <span id="ios-count" class="count"></span></h3>
+          <div id="ios-list" class="module-grid"></div>
+        </div>
+        </div>
+
+        <div class="actions">
+          <button id="find-differences" type="button" hidden>Find differences</button>
+        </div>
+      </section>
+
+      <section id="differences-step" hidden>
+        <div class="differences-head">
+          <h2>Differences</h2>
+          <button id="download-pdf" type="button" class="secondary" hidden>Download PDF</button>
+        </div>
+        <article id="report"></article>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

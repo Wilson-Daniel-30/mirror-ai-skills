@@ -1,0 +1,294 @@
+#!/usr/bin/env bash
+# Mirror AI interactive setup — run from any directory: ./setup.sh
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
+
+MIN_NODE_MAJOR=22
+ENV_FILE="$ROOT/.env"
+ENV_EXAMPLE="$ROOT/.env.example"
+
+# --------------------------------------------------------------------------- UI
+say() { printf '%s\n' "$*"; }
+ask() {
+  local prompt="$1" default="${2:-}"
+  local reply
+  if [[ -n "$default" ]]; then
+    printf '%s [%s]: ' "$prompt" "$default" >&2
+  else
+    printf '%s: ' "$prompt" >&2
+  fi
+  read -r reply </dev/tty || true
+  if [[ -z "$reply" && -n "$default" ]]; then
+    reply="$default"
+  fi
+  printf '%s' "$reply"
+}
+
+ask_secret() {
+  local prompt="$1"
+  printf '%s (input hidden): ' "$prompt" >&2
+  local reply
+  read -rs reply </dev/tty || true
+  printf '\n' >&2
+  printf '%s' "$reply"
+}
+
+confirm() {
+  local prompt="$1"
+  local reply
+  reply="$(ask "$prompt" "y")"
+  [[ "$reply" =~ ^[Yy] ]]
+}
+
+version_ge() {
+  # usage: version_ge 22 24  => true if 24 >= 22
+  local need="$1" have="$2"
+  if [[ "$have" -ge "$need" ]]; then return 0; fi
+  return 1
+}
+
+node_major() {
+  node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo 0
+}
+
+have_cmd() { command -v "$1" >/dev/null 2>&1; }
+
+# --------------------------------------------------------------------------- welcome
+say ""
+say "=============================================="
+say "  Mirror AI — setup"
+say "=============================================="
+say ""
+say "This installer will:"
+say "  • Check Node.js, npm, and git"
+say "  • Install npm dependencies (npm install)"
+say "  • Create or update .env from your answers"
+say "  • Run tests to verify the install"
+say ""
+say "Project directory: $ROOT"
+say ""
+
+# --------------------------------------------------------------------------- OS
+OS="$(uname -s 2>/dev/null || echo unknown)"
+case "$OS" in
+  Darwin) PLATFORM="macOS" ;;
+  Linux) PLATFORM="Linux" ;;
+  *)
+    say "ERROR: Unsupported OS ($OS). Mirror AI is developed on macOS and Linux."
+    say "       Windows users should run setup.ps1 in PowerShell."
+    exit 1
+    ;;
+esac
+say "Platform: $PLATFORM"
+say ""
+
+# --------------------------------------------------------------------------- Node
+if ! have_cmd node; then
+  say "ERROR: Node.js is not installed."
+  say ""
+  say "Install Node.js 22 or newer:"
+  say "  macOS:  brew install node   or https://nodejs.org/"
+  say "  Linux:  https://nodejs.org/  or your package manager (ensure v22+)"
+  exit 1
+fi
+
+NODE_MAJOR="$(node_major)"
+if ! version_ge "$MIN_NODE_MAJOR" "$NODE_MAJOR"; then
+  say "ERROR: Node.js $(node -v) found; Mirror AI requires v${MIN_NODE_MAJOR}+ (for --experimental-strip-types)."
+  exit 1
+fi
+say "OK  Node $(node -v)"
+
+if ! have_cmd npm; then
+  say "ERROR: npm is missing. Reinstall Node.js from https://nodejs.org/"
+  exit 1
+fi
+say "OK  npm $(npm -v)"
+
+# --------------------------------------------------------------------------- git
+if have_cmd git; then
+  say "OK  git $(git --version | awk '{print $3}')"
+else
+  say "WARN git not found — required to clone remote repository URLs."
+  if ! confirm "Continue without git?"; then exit 1; fi
+fi
+
+# --------------------------------------------------------------------------- optional tools
+if have_cmd claude && claude --version >/dev/null 2>&1; then
+  say "OK  Claude Code CLI (default audit runner)"
+  HAS_CLAUDE=1
+else
+  say "NOTE Claude Code CLI not found — audits will use the API runner if you set ANTHROPIC_API_KEY."
+  HAS_CLAUDE=0
+fi
+
+if [[ "$PLATFORM" == "macOS" ]]; then
+  if have_cmd xcodebuild; then
+    say "OK  Xcode (iOS screenshot renders available)"
+  else
+    say "NOTE Xcode not found — iOS screenshot rendering will not work."
+  fi
+  if [[ -n "${ANDROID_HOME:-}" && -d "$ANDROID_HOME" ]]; then
+    say "OK  ANDROID_HOME=$ANDROID_HOME"
+  else
+    say "NOTE ANDROID_HOME not set — Android screenshot renders need the Android SDK."
+  fi
+else
+  say "NOTE iOS screenshot rendering requires macOS + Xcode."
+fi
+say ""
+
+# --------------------------------------------------------------------------- .env
+write_env_line() {
+  local key="$1" value="$2"
+  # shellcheck disable=SC2016
+  if grep -q "^${key}=" "$ENV_FILE" 2>/dev/null; then
+    if [[ "$(uname)" == "Darwin" ]]; then
+      sed -i '' "s|^${key}=.*|${key}=${value}|" "$ENV_FILE"
+    else
+      sed -i "s|^${key}=.*|${key}=${value}|" "$ENV_FILE"
+    fi
+  else
+    printf '%s=%s\n' "$key" "$value" >>"$ENV_FILE"
+  fi
+}
+
+unset_env_key() {
+  local key="$1"
+  if [[ -f "$ENV_FILE" ]]; then
+    if [[ "$(uname)" == "Darwin" ]]; then
+      sed -i '' "/^${key}=/d" "$ENV_FILE"
+    else
+      sed -i "/^${key}=/d" "$ENV_FILE"
+    fi
+  fi
+}
+
+if [[ -f "$ENV_FILE" ]]; then
+  say "Found existing .env"
+  if ! confirm "Update configuration interactively? (existing keys may be changed)"; then
+    say "Keeping current .env"
+  else
+    CONFIGURE_ENV=1
+  fi
+else
+  CONFIGURE_ENV=1
+  if [[ -f "$ENV_EXAMPLE" ]]; then
+    cp "$ENV_EXAMPLE" "$ENV_FILE"
+    say "Created .env from .env.example"
+  else
+    touch "$ENV_FILE"
+    say "Created empty .env"
+  fi
+fi
+
+if [[ "${CONFIGURE_ENV:-0}" == 1 ]]; then
+  say ""
+  say "--- Audit credentials ---"
+  if [[ "$HAS_CLAUDE" == 1 ]]; then
+    runner="$(ask "Audit runner (cli|api|leave blank for auto)" "")"
+    if [[ -n "$runner" ]]; then
+      if [[ "$runner" != "cli" && "$runner" != "api" ]]; then
+        say "ERROR: runner must be cli or api"
+        exit 1
+      fi
+      write_env_line "MIRROR_AI_RUNNER" "$runner"
+    else
+      unset_env_key "MIRROR_AI_RUNNER"
+    fi
+  else
+    say "No Claude CLI detected — API key is required for audits."
+    api_key="$(ask_secret "ANTHROPIC_API_KEY")"
+    if [[ -z "$api_key" ]]; then
+      say "ERROR: ANTHROPIC_API_KEY is required when the Claude CLI is not installed."
+      say "Obtain a key at https://console.anthropic.com/ then re-run setup."
+      exit 1
+    fi
+    if [[ ! "$api_key" =~ ^sk-ant- ]]; then
+      say "WARN Key does not look like a standard Anthropic API key (expected sk-ant-...)."
+      if ! confirm "Use this value anyway?"; then exit 1; fi
+    fi
+    write_env_line "ANTHROPIC_API_KEY" "$api_key"
+    write_env_line "MIRROR_AI_RUNNER" "api"
+  fi
+
+  if [[ "$HAS_CLAUDE" == 1 ]]; then
+    use_api="$(ask "Also store ANTHROPIC_API_KEY for API fallback? (y/n)" "n")"
+    if [[ "$use_api" =~ ^[Yy] ]]; then
+      api_key="$(ask_secret "ANTHROPIC_API_KEY")"
+      if [[ -n "$api_key" ]]; then
+        write_env_line "ANTHROPIC_API_KEY" "$api_key"
+      fi
+    fi
+  fi
+
+  say ""
+  say "--- Bitbucket (optional) ---"
+  say "Only needed for private bitbucket.org clone URLs when git has no stored credentials."
+  bb="$(ask "Configure Bitbucket credentials? (y/n)" "n")"
+  if [[ "$bb" =~ ^[Yy] ]]; then
+    bb_user="$(ask "BITBUCKET_USERNAME")"
+    bb_token="$(ask_secret "BITBUCKET_TOKEN or app password")"
+    if [[ -z "$bb_user" || -z "$bb_token" ]]; then
+      say "ERROR: both username and token are required for Bitbucket auth."
+      exit 1
+    fi
+    write_env_line "BITBUCKET_USERNAME" "$bb_user"
+    write_env_line "BITBUCKET_TOKEN" "$bb_token"
+  fi
+
+  say ""
+  say "--- Server (optional) ---"
+  port="$(ask "PORT" "4173")"
+  if [[ ! "$port" =~ ^[0-9]+$ ]] || [[ "$port" -lt 1 || "$port" -gt 65535 ]]; then
+    say "ERROR: invalid port"
+    exit 1
+  fi
+  write_env_line "PORT" "$port"
+
+  say ""
+  say "Configuration saved to .env (secrets are not printed)."
+fi
+
+# --------------------------------------------------------------------------- npm install
+say ""
+if [[ -d "$ROOT/node_modules" ]]; then
+  if confirm "Run npm install to refresh dependencies?"; then
+    npm install
+  else
+    say "Skipping npm install"
+  fi
+else
+  say "Installing npm dependencies…"
+  npm install
+fi
+
+# --------------------------------------------------------------------------- directories
+mkdir -p "$ROOT/.cache/repos"
+mkdir -p "$ROOT/generated reports"
+
+# --------------------------------------------------------------------------- verify
+say ""
+say "Running test suite…"
+if npm test; then
+  say ""
+  say "=============================================="
+  say "  Setup complete"
+  say "=============================================="
+  say ""
+  say "Start Mirror AI:"
+  say "  npm run serve"
+  say ""
+  say "Then open http://127.0.0.1:${port:-4173}/ (or the URL printed by npm run serve)."
+  say ""
+  say "CLI audit example:"
+  say "  npm run audit -- --android ./fixtures/android-app --ios ./fixtures/ios-app --list"
+  say ""
+  say "Documentation: README.md  |  Quick path: QUICKSTART.md"
+else
+  say ""
+  say "ERROR: Tests failed. Fix the errors above before running Mirror AI."
+  exit 1
+fi

@@ -1,0 +1,1625 @@
+{
+  "title": "Superapp Jamaica — API Contract Drift",
+  "meta": {
+    "sprint": "Jamaica/feature/development",
+    "androidSha": "0b03ae1f",
+    "iosSha": "3124b4e0",
+    "generated": "2026-10-07",
+    "chips": [
+      "BFF /api/metac-app-bff/v1/",
+      "POST JSON",
+      "Hosts same",
+      "Tenant JM"
+    ],
+    "androidBaselineEvidence": "core/network/src/main/java/com/core/network/intercepter/HeaderInterceptor.kt @ 0b03ae1f",
+    "iosBaselineEvidence": "LLA-SuperApp-iOS/Core/Networking/Config/HTTPHeaders.swift @ 3124b4e0",
+    "source": "`superapp-workspace` @ `feature/api-contract-drift-v2` (`11619e0`)"
+  },
+  "kpis": {
+    "total": 97,
+    "same": 70,
+    "drift": 7,
+    "androidOnly": 18,
+    "iosOnly": 2,
+    "highRisk": 5,
+    "stale": 8,
+    "exclusive": 20
+  },
+  "modules": [
+    "Auth",
+    "Account",
+    "Storefront",
+    "Payments",
+    "Loyalty",
+    "Comms"
+  ],
+  "apis": [
+    {
+      "path": "login",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "loginId, password, loginMode, biometric",
+      "ios": "same fields",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "otp-login",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "code, phone, flow, biometric",
+      "ios": "code, loginId, vtoken, biometric",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "auth/refresh-token",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "{}",
+      "ios": "EmptyRequest",
+      "notes": "Refresh token in Authorization",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "auth/logout",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "{}",
+      "ios": "{}",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "registration/account-search-send-otp",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "phone/email search",
+      "ios": "same shape",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "send-otp-lambda",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "phone, hash, accion, sms",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "registration/register-and-login",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "code, loginId, mode, vtoken",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "registration/set-account-info",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "password or link-mobile",
+      "ios": "password or mode: link-account-mobile",
+      "notes": "iOS reuses for mobile link",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "recover-password/*",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "standard recover flow",
+      "ios": "same",
+      "notes": "3 paths",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "registration/get-account-info",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "uid in body",
+      "ios": "GetAccountInfoRequest(uid)",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "link-account-fixed",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "residential link fields",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "link-account-mobile",
+      "category": "Auth",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "LinkAccountMobileRequest",
+      "ios": "—",
+      "notes": "iOS uses set-account-info with mode instead",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "otp-update-and-set-link-account",
+      "category": "Auth",
+      "contract": "drift",
+      "drift": [
+        "ROUTE",
+        "BODY"
+      ],
+      "risk": "high",
+      "android": "single combined request",
+      "ios": "chains otp-update + set-account-info",
+      "notes": "Different orchestration for same journey",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "otp-update",
+      "category": "Auth",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "OTP verify",
+      "ios": "code, vtoken",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "(UID header + body uid)"
+    },
+    {
+      "path": "send-otp",
+      "category": "Auth",
+      "contract": "ios-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "integrated (unused)",
+      "ios": "stale constant",
+      "notes": "Resend uses send-otp-lambda",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "auth/integrity-check",
+      "category": "Auth",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "IntegrityCheckRequest",
+      "ios": "—",
+      "notes": "Play Integrity; no iOS wiring",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "get-home-screen-data",
+      "category": "Account",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "accountNumbers: [String]",
+      "ios": "accountNumbers: [String]",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "get-account-data-details",
+      "category": "Account",
+      "contract": "drift",
+      "drift": [
+        "TYPE",
+        "BODY"
+      ],
+      "risk": "medium",
+      "android": "accountNumber, msisdn, lob, serviceType (enum)",
+      "ios": "same fields; serviceType String; E.164 MSISDN",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "edit-profile",
+      "category": "Account",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "name, email, phone",
+      "ios": "firstName, lastName",
+      "notes": "Verify BFF accepts both",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "update-profile-settings",
+      "category": "Account",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "biometric, auto-logout",
+      "ios": "ChangeSettingRequest + loyalty carousel",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "unlink-account",
+      "category": "Account",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "uid, accountParam, accountMode",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "add-alias / delete-alias",
+      "category": "Account",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "alias CRUD",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "save-third-party-alias / delete-third-party-alias",
+      "category": "Account",
+      "contract": "same",
+      "drift": [
+        "HDR"
+      ],
+      "risk": "low",
+      "android": "body + optional lob header",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "+ HeaderMap",
+      "iosExtra": "+ lob (optional)"
+    },
+    {
+      "path": "delete-account",
+      "category": "Account",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "credentials + accounts",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "activate-disney-product",
+      "category": "Account",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "ActivateDisneyRequest",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "update-onguard-url",
+      "category": "Account",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "DefenderUrlRequest",
+      "ios": "—",
+      "notes": "OnGuard defender URL",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "storefront/fetch-app-update",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "app version request",
+      "ios": "StorefrontAppUpdateRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "storefront/get-latest-version",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "config request",
+      "ios": "StorefrontVersionRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "storefront/get-user-configuration",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "config request",
+      "ios": "StorefrontUserConfigRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "storefront/get-banner-details",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "config request",
+      "ios": "StorefrontBannerRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "storefront/term-condition-policies",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "config request",
+      "ios": "StorefrontPolicyRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "storefront/registration-tnc",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "{}",
+      "ios": "{}",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "storefront/get-app-tutorial-details",
+      "category": "Storefront",
+      "contract": "ios-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "—",
+      "ios": "StorefrontAppTutorialDetailsRequest",
+      "notes": "Tutorial onboarding",
+      "androidExtra": "—",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/get-app-list",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "app list filters",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/swipe-to-refresh-list",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "{}",
+      "ios": "{}",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/prepaid-journey-config/list-config",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "search text",
+      "ios": "searchText (ACTIVE)",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/get-payment-amount-config",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "paging + search",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/sales-offer-menu",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "{ msisdn }",
+      "ios": "{ msisdn }",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/sales-catalogue/list",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "plan names, account, lob",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/esim/list",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "msisdn",
+      "ios": "msisdn",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/addon-configuration/list",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "{}",
+      "ios": "{}",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/status-card-config/list",
+      "category": "Storefront",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "{}",
+      "ios": "{}",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cms/redis-data-list",
+      "category": "Storefront",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "StringManagerRequest (keys)",
+      "ios": "—",
+      "notes": "Redis-backed CMS strings",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "topup / third-party/topup",
+      "category": "Payments",
+      "contract": "drift",
+      "drift": [
+        "BODY",
+        "TYPE",
+        "HDR"
+      ],
+      "risk": "high",
+      "android": "MetacTopupRequest; msisdn Long required",
+      "ios": "HostedPaymentInitiationRequest; +accountNumber, serviceNumber, email",
+      "notes": "Extra iOS fields; msisdn optional on iOS",
+      "androidExtra": "+ lob",
+      "iosExtra": "+ lob"
+    },
+    {
+      "path": "initiateBillPayment / third-party/…",
+      "category": "Payments",
+      "contract": "drift",
+      "drift": [
+        "BODY"
+      ],
+      "risk": "medium",
+      "android": "bill pay initiation",
+      "ios": "hosted shape; omits msisdn/region",
+      "notes": "",
+      "androidExtra": "+ lob",
+      "iosExtra": "+ lob"
+    },
+    {
+      "path": "plan-purchase / third-party/plan-purchase",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [
+        "HDR"
+      ],
+      "risk": "low",
+      "android": "PlanPurchaseRequest + headers",
+      "ios": "PlanPurchaseInitiationRequest + lob",
+      "notes": "",
+      "androidExtra": "+ HeaderMap",
+      "iosExtra": "+ lob"
+    },
+    {
+      "path": "get-payment-method-all-gateways",
+      "category": "Payments",
+      "contract": "drift",
+      "drift": [
+        "BODY"
+      ],
+      "risk": "medium",
+      "android": "currencyCode",
+      "ios": "uid + paymentType",
+      "notes": "Different bodies on same path",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "list-available-payment-types",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "currencyCode",
+      "ios": "currencyCode",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "get-stored-payments",
+      "category": "Payments",
+      "contract": "drift",
+      "drift": [
+        "BODY"
+      ],
+      "risk": "medium",
+      "android": "Map<String,String>",
+      "ios": "GetStoredPaymentsRequest (userId)",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "initiate-add-payment-method",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [
+        "HDR"
+      ],
+      "risk": "low",
+      "android": "hosted add-card",
+      "ios": "hosted + lob header",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "+ lob"
+    },
+    {
+      "path": "delete-payment-method",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "paymentMethodId",
+      "ios": "paymentMethodId",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "update-payment-method-alias",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "id + alias",
+      "ios": "id + alias",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "validate-account",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "accountId, type, lob",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "+ lob",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "voucher-topup",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [
+        "HDR"
+      ],
+      "risk": "low",
+      "android": "voucher, msisdn + lob header",
+      "ios": "voucher, msisdn",
+      "notes": "",
+      "androidExtra": "+ lob",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "plan-catalog",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [
+        "HDR"
+      ],
+      "risk": "low",
+      "android": "msisdn, zone + countryCode JM",
+      "ios": "msisdn, zone",
+      "notes": "",
+      "androidExtra": "+ countryCode",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "add-prepaid-plan",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [
+        "HDR",
+        "TYPE"
+      ],
+      "risk": "medium",
+      "android": "msisdn, planId + lob header",
+      "ios": "msisdn Int64 + lob (lowercased)",
+      "notes": "",
+      "androidExtra": "+ lob",
+      "iosExtra": "+ lob"
+    },
+    {
+      "path": "conversion-rate",
+      "category": "Payments",
+      "contract": "drift",
+      "drift": [
+        "HDR",
+        "BODY"
+      ],
+      "risk": "medium",
+      "android": "from/to currency",
+      "ios": "msisdn + currencies; countryCode JM header",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "+ countryCode"
+    },
+    {
+      "path": "transaction-detail",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "transactionId",
+      "ios": "transactionId, userId?",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "list-recurring-payments",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "account filter",
+      "ios": "account filter",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "initiate-recurring-enrollment",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "enrollment fields",
+      "ios": "enrollment fields",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "update-recurring-payment",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "id + payment method",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "cancel-recurring-payment",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "account + recurring id",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "get-payment-history / delete-payment-history",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [
+        "HDR"
+      ],
+      "risk": "low",
+      "android": "paging + optional lob",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "+ HeaderMap (delete)",
+      "iosExtra": "+ lob (optional)"
+    },
+    {
+      "path": "get-bill-history",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "account, date range",
+      "ios": "account, lob",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "get-prepaid-recharge-history",
+      "category": "Payments",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "recharge history request",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "payment-history",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "account, dates",
+      "ios": "account, dates",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "download-bill-pdf",
+      "category": "Payments",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "invoiceId",
+      "ios": "billNumber",
+      "notes": "Verify BFF field alias",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "PA/sigma/widget-url",
+      "category": "Payments",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "high",
+      "android": "SigmaSessionRequest + lob",
+      "ios": "—",
+      "notes": "Sigma hosted widget",
+      "androidExtra": "+ lob",
+      "iosExtra": "—"
+    },
+    {
+      "path": "PA/sigma/{rebill-*}",
+      "category": "Payments",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "high",
+      "android": "SigmaTokenPaymentRequest + lob",
+      "ios": "—",
+      "notes": "Sigma token rebill",
+      "androidExtra": "+ lob",
+      "iosExtra": "—"
+    },
+    {
+      "path": "PA/esb/topupBalance",
+      "category": "Payments",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "high",
+      "android": "TopUpBalanceRequest + headers",
+      "ios": "—",
+      "notes": "Legacy ESB top-up",
+      "androidExtra": "+ HeaderMap",
+      "iosExtra": "—"
+    },
+    {
+      "path": "get-top-up-web-view-url",
+      "category": "Payments",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "WebviewRequest",
+      "ios": "—",
+      "notes": "WebView checkout URL",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "loyalty/user/get",
+      "category": "Loyalty",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "uid, email",
+      "ios": "uid, email",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "loyalty/transactional/get-history",
+      "category": "Loyalty",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "paginated history",
+      "ios": "paginated history",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "loyalty/giftme/merchants",
+      "category": "Loyalty",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "merchants list",
+      "ios": "merchants list",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "loyalty/giftme/merchant/vouchers",
+      "category": "Loyalty",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "merchant vouchers",
+      "ios": "merchant vouchers",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "loyalty/giftme/redeem-coupon",
+      "category": "Loyalty",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "redeem request",
+      "ios": "redeem request",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "loyalty/transactional/claim",
+      "category": "Loyalty",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "ClaimLoyaltyPointRequest",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "loyalty/tier/get",
+      "category": "Loyalty",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "tier request",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "loyalty/transactional/get-unclaimed",
+      "category": "Loyalty",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "unclaimed list",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "loyalty/point-based/vouchers/available",
+      "category": "Loyalty",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "available vouchers",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "loyalty/point-based/vouchers/user",
+      "category": "Loyalty",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "medium",
+      "android": "redeemed vouchers",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "loyalty/v1/redemption/point/report/detail",
+      "category": "Loyalty",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "redemption report",
+      "ios": "—",
+      "notes": "Double v1 in path",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "loyalty/help-faq/get",
+      "category": "Loyalty",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "FAQ request",
+      "ios": "—",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "communication/get-feature-type",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "feature check",
+      "ios": "{ check }",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "communication/get-unread-push-notification-count",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "check flag",
+      "ios": "{ check }",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "communication/get-all-push-notification",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "paging",
+      "ios": "paging",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "communication/mark-as-read",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "notification id",
+      "ios": "{ id }",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "communication/save-fcm-token",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "fcm token",
+      "ios": "fcm token",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "update-account-details-audit",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "account audit fields",
+      "ios": "fcm + daily active users",
+      "notes": "Different audit payloads",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "analytics/new-app-install",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "event + params",
+      "ios": "createdAt date",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "analytics/create-carousal",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "carousel report",
+      "ios": "inputList campaigns",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "campaign/get-in-app-push",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "client/device ids",
+      "ios": "InAppRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "campaign/in-app-call-back",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "callback action",
+      "ios": "InAppCallbackRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "campaign/cpass-callback",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "push event",
+      "ios": "CpasscallbackRequest",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "campaign/AppEvent/event/",
+      "category": "Comms",
+      "contract": "android-only",
+      "drift": [
+        "ROUTE"
+      ],
+      "risk": "low",
+      "android": "EventRequest",
+      "ios": "—",
+      "notes": "CLM app event",
+      "androidExtra": "baseline",
+      "iosExtra": "—"
+    },
+    {
+      "path": "shop-section/* (5 paths)",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "eSIM / physical SIM orders",
+      "ios": "same",
+      "notes": "",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    },
+    {
+      "path": "store-locator/locations",
+      "category": "Comms",
+      "contract": "same",
+      "drift": [],
+      "risk": "low",
+      "android": "lat/lng/radius",
+      "ios": "page/search",
+      "notes": "Pagination model differs",
+      "androidExtra": "baseline",
+      "iosExtra": "baseline"
+    }
+  ],
+  "baseline": [
+    {
+      "header": "Authorization",
+      "android": "Bearer accessToken (refresh token on auth/refresh-token)",
+      "ios": "Bearer accessToken (refresh fallback if access empty)",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "uid",
+      "android": "uid (lowercase header name)",
+      "ios": "UID (uppercase header name)",
+      "status": "Drift",
+      "tag": "CASE"
+    },
+    {
+      "header": "Content-Type",
+      "android": "application/json",
+      "ios": "application/json",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "Accept",
+      "android": "application/json",
+      "ios": "*/*",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "appLanguage",
+      "android": "\"es\" hardcoded (HeaderInterceptor.kt:44)",
+      "ios": "Locale.current languageCode (default en)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "tenantId",
+      "android": "JM (BuildConfig.TENANT_ID)",
+      "ios": "JM (TenantConfig.current.rawValue)",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "appName",
+      "android": "Flow + (BuildConfig.APP_NAME)",
+      "ios": "My Flow Self Care (HeaderValue.appNameDefault)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "appVersion",
+      "android": "BuildConfig.VERSION_NAME",
+      "ios": "Bundle.main.marketingVersionString",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "appVersionCode",
+      "android": "BuildConfig.VERSION_CODE",
+      "ios": "Bundle.main.buildVersionNumber",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "channel",
+      "android": "APP",
+      "ios": "APP",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "deviceId",
+      "android": "prefHelper.getDeviceId()",
+      "ios": "identifierForVendor UUID",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "deviceType",
+      "android": "android",
+      "ios": "iOS",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "deviceName",
+      "android": "${MANUFACTURER} ${MODEL}",
+      "ios": "UIDevice.current.name",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "OSNAME",
+      "android": "Android",
+      "ios": "iOS (Header.osName)",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "OSVERSION",
+      "android": "Build.VERSION.RELEASE",
+      "ios": "UIDevice.current.systemVersion",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "OSMODELNAME",
+      "android": "Build.VERSION_CODES field name",
+      "ios": "— (not sent)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "OSPRODUCTNAME",
+      "android": "Build.PRODUCT",
+      "ios": "— (not sent)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "OSFIRMWAREBUILD",
+      "android": "Build.DISPLAY",
+      "ios": "— (not sent)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "reqId",
+      "android": "generateRandomNumber()",
+      "ios": "— (not sent)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "mmReqIdentifier",
+      "android": "SecurityInterceptor only",
+      "ios": "random Int64 in standardHeaders",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "sessionId",
+      "android": "prefHelper.getSessionId()",
+      "ios": "UserDefaultsManager.shared.sessionId",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "uniqueId",
+      "android": "prefHelper.getUniqueId()",
+      "ios": "— (not sent)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "digitalKey",
+      "android": "SecurityInterceptor RSA wrap (PreProd+Prod)",
+      "ios": "HTTPHeaders.standardHeaders RSA wrap",
+      "status": "Same",
+      "tag": "—"
+    },
+    {
+      "header": "Strict-Transport-Security",
+      "android": "max-age=63072000; includeSubDomains; preload",
+      "ios": "— (not sent)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "Accept-Encoding",
+      "android": "identity",
+      "ios": "— (URLSession default)",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "transactionId",
+      "android": "optional (NotificationCache)",
+      "ios": "—",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "intent",
+      "android": "optional (NotificationCache)",
+      "ios": "—",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "campaignId",
+      "android": "optional (NotificationCache)",
+      "ios": "—",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "conversionType",
+      "android": "optional (NotificationCache)",
+      "ios": "—",
+      "status": "Drift",
+      "tag": "HDR"
+    },
+    {
+      "header": "Dynatrace tag",
+      "android": "DynatraceInterceptor",
+      "ios": "—",
+      "status": "Drift",
+      "tag": "HDR"
+    }
+  ],
+  "highRisk": [
+    {
+      "path": "otp-update-and-set-link-account",
+      "contract": "Drift",
+      "check": "Different orchestration — Android single call vs iOS chains otp-update + set-account-info",
+      "drift": [
+        "ROUTE",
+        "BODY"
+      ]
+    },
+    {
+      "path": "topup / third-party/topup",
+      "contract": "Drift",
+      "check": "Body/type drift — Android msisdn Long required; iOS HostedPaymentInitiationRequest with extra fields",
+      "drift": [
+        "BODY",
+        "TYPE",
+        "HDR"
+      ]
+    },
+    {
+      "path": "PA/sigma/widget-url",
+      "contract": "Android only",
+      "check": "Android-only Sigma hosted payment path — no iOS wiring",
+      "drift": [
+        "ROUTE"
+      ]
+    },
+    {
+      "path": "PA/sigma/{rebill-*}",
+      "contract": "Android only",
+      "check": "Android-only Sigma token rebill — no iOS wiring",
+      "drift": [
+        "ROUTE"
+      ]
+    },
+    {
+      "path": "PA/esb/topupBalance",
+      "contract": "Android only",
+      "check": "Android-only legacy ESB top-up — no iOS wiring",
+      "drift": [
+        "ROUTE"
+      ]
+    },
+    {
+      "path": "uid / UID (baseline)",
+      "contract": "Drift",
+      "check": "Android sends lowercase uid; iOS sends UID. Confirm BFF normalizes casing on every authenticated call.",
+      "drift": [
+        "CASE",
+        "HDR"
+      ]
+    }
+  ],
+  "stale": [
+    {
+      "path": "get-lob-details",
+      "android": "stale",
+      "ios": "absent",
+      "notes": "EndPoints constant; no Service @POST wiring"
+    },
+    {
+      "path": "PA/payment-method/delete-payment-method",
+      "android": "stale",
+      "ios": "absent",
+      "notes": "Superseded by delete-payment-method"
+    },
+    {
+      "path": "api/jamaicapaymentproxy/v1/redmond/payment-methods/delete",
+      "android": "stale",
+      "ios": "absent",
+      "notes": "Legacy Redmond delete path"
+    },
+    {
+      "path": "send-otp",
+      "android": "integrated (unused)",
+      "ios": "stale",
+      "notes": "Resend OTP uses send-otp-lambda on both platforms"
+    },
+    {
+      "path": "otp-update-and-set-link-account",
+      "android": "integrated",
+      "ios": "stale constant",
+      "notes": "iOS chains otp-update + set-account-info instead"
+    },
+    {
+      "path": "user-profile/update-user-settings",
+      "android": "absent",
+      "ios": "stale",
+      "notes": "SettingsEndPoint uses non-BFF userProfileBaseUrl; unwired"
+    },
+    {
+      "path": "NetworkConstants.URL duplicates (topup, initiateBillPayment, salesOfferMenu)",
+      "android": "absent",
+      "ios": "stale",
+      "notes": "Live iOS paths use HostedPaymentAPIPath enum"
+    },
+    {
+      "path": "SalesMenuEndPoint.fetchSalesOfferMenu",
+      "android": "absent",
+      "ios": "stale dead code",
+      "notes": "Maps to shop-section/create-esim-order; zero callers"
+    }
+  ],
+  "env": [
+    {
+      "env": "Dev",
+      "android": "dev.superapp.core.metac.libertyuconnect.com",
+      "ios": "dev.superapp.core.metac.libertyuconnect.com",
+      "match": "same"
+    },
+    {
+      "env": "Staging",
+      "android": "stg.superapp.core.metac.libertyuconnect.com",
+      "ios": "stg.superapp.core.metac.libertyuconnect.com",
+      "match": "same"
+    },
+    {
+      "env": "Pre-prod",
+      "android": "pre-prod.superapp.core.metac.libertyuconnect.com",
+      "ios": "pre-prod.superapp.core.metac.libertyuconnect.com",
+      "match": "same"
+    },
+    {
+      "env": "Prod",
+      "android": "superapp.core.metac.libertyuconnect.com",
+      "ios": "superapp.core.metac.libertyuconnect.com",
+      "match": "same"
+    }
+  ],
+  "keyPatterns": [
+    "`uid` casing on every authenticated call — Android uid (lowercase header name); iOS UID (uppercase header name).",
+    "18 Android-only paths (Auth 2, Account 2, Storefront 1, Payments 5, Loyalty 7, Comms 1), including the Sigma/ESB payment paths `PA/sigma/widget-url`, `PA/sigma/{rebill-*}`, `PA/esb/topupBalance` with no iOS wiring.",
+    "Orchestration split on `otp-update-and-set-link-account` — Android single combined request; iOS chains otp-update + set-account-info.",
+    "Body drift on shared paths, mostly in Payments: `get-account-data-details`, `topup / third-party/topup`, `initiateBillPayment / third-party/…`, `get-payment-method-all-gateways`, `get-stored-payments`, `conversion-rate`.",
+    "`+ lob` is sent on one platform only for `initiate-add-payment-method`, `validate-account`, `voucher-topup`."
+  ]
+}
